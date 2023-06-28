@@ -39,7 +39,7 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
     zoom_range=0.2)
-val_datagen = ImageDataGenerator(rescale=1./255)
+val_datagen = ImageDataGenerator()
 
 train_generator = train_datagen.flow_from_directory(
         r'I:\End_sem_major_project\data\train',
