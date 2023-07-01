@@ -153,7 +153,7 @@ image0 = cv2.imread(r"I:\End_sem_major_project\data\train\CAKE\CAKE0038.png")
 
 # for i in range(0,2):
 #  	for img in array:
-image = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
+image = cv2.resize(image0, (256, 256), interpolation = cv2.INTER_AREA)
 #orig = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
 textImage, textDetected = text_detector(image)
 #cv2.imshow("Orig Image",orig)
