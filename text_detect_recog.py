@@ -36,7 +36,7 @@ net = cv2.dnn.readNet(r"C:\Users\hp\Downloads\frozen_east_text_detection.pb")
 def text_detector(image):
 	orig = image.copy()
 	(H, W) = image.shape[:2]
-	(newW, newH) = (320, 320)
+	(newW, newH) = (256, 256)
 	rW = W / float(newW)
 	rH = H / float(newH)
     
@@ -57,6 +57,7 @@ def text_detector(image):
 	(numRows, numCols) = scores.shape[2:4]
 	rects = []
 	confidences = []
+	recognized_text_embeddings = ""
 
 	for y in range(0, numRows):
 
@@ -112,11 +113,12 @@ def text_detector(image):
 
 		text = orig[startY-boundary:endY+boundary, startX - boundary:endX + boundary]
 		text = cv2.cvtColor(text.astype(np.uint8), cv2.COLOR_BGR2GRAY)
-		textRecongized = pytesseract.image_to_string(text)
+		textRecognized = pytesseract.image_to_string(text)
+		recognized_text_embeddings += textRecognized
 		cv2.rectangle(orig, (startX, startY), (endX, endY), (0, 255, 0), 3)
-		orig = cv2.putText(orig, textRecongized, (endX,endY+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+		orig = cv2.putText(orig, textRecognized, (endX,endY+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
     
-	return orig
+	return orig, recognized_text_embeddings
 
 
 #%%
@@ -153,10 +155,10 @@ image0 = cv2.imread(r"I:\End_sem_major_project\data\train\CAKE\CAKE0038.png")
 #  	for img in array:
 image = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
 #orig = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
-textDetected = text_detector(image)
+textImage, textDetected = text_detector(image)
 #cv2.imshow("Orig Image",orig)
 print(textDetected)
-cv2.imshow("Text Detection", textDetected)
+cv2.imshow("Text Detection", textImage)
 time.sleep(2)
 k= cv2.waitKey(30)
     # if k == 27:
