@@ -145,22 +145,17 @@ def text_detector(image):
 
 #%%
 image0 = cv2.imread(r"I:\End_sem_major_project\data\train\CAKE\CAKE0038.png")
-# image1 = cv2.imread("I:\End_sem_major_project\data\train\BEANS\BEANS0051.png")
-# image2 = cv2.imread("I:\End_sem_major_project\data\train\BEANS\BEANS0058.png")
-# image3 = cv2.imread("I:\End_sem_major_project\data\train\BEANS\BEANS00116.png")
-# image4 = cv2.imread("I:\End_sem_major_project\data\train\BEANS\BEANS00117.png")
-# array = [image0,image1,image2,image3,image4]
-
-# for i in range(0,2):
-#  	for img in array:
 image = cv2.resize(image0, (256, 256), interpolation = cv2.INTER_AREA)
-#orig = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
 textImage, textDetected = text_detector(image)
-#cv2.imshow("Orig Image",orig)
 print(textDetected)
 cv2.imshow("Text Detection", textImage)
 time.sleep(2)
 k= cv2.waitKey(30)
+
+# for i in range(0,2):
+# for img in array:
+#orig = cv2.resize(image0, (640,320), interpolation = cv2.INTER_AREA)
+#cv2.imshow("Orig Image",orig)
     # if k == 27:
     #     break
 #cv2.destroyAllWindows()
