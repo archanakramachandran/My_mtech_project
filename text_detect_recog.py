@@ -178,5 +178,12 @@ k= cv2.waitKey(30)
     #     break
 #cv2.destroyAllWindows()
 
-
+# Code for running on all files:
+# pathtoimages=list(paths.list_images(r"D:\test\data\data_used\train"))
+# for img_path in pathtoimages:
+#     print(img_path)
+#     image0 = cv2.imread(img_path)
+#     image = cv2.resize(image0, (512,512), interpolation = cv2.INTER_AREA)
+#     textImage, textDetected = text_detector(image)
+#     print(textDetected)
 
