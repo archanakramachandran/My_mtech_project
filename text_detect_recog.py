@@ -111,6 +111,24 @@ def text_detector(image):
 		endY = int(endY * rH)
 		boundary = 2
 
+		if startX > W:
+        		startX=W-2
+		elif startX < 2:
+                	startX=2
+		if startY > W:
+            		startY=W-2
+        	elif startY < 2:
+            		startY=2
+        
+        	if endX > W:
+            		endX=W-2
+        	elif endX < 2:
+            		endX=2
+        	if endY > W:
+            		endY=W-2
+        	elif endY < 2:
+            		endY=2
+
 		text = orig[startY-boundary:endY+boundary, startX - boundary:endX + boundary]
 		text = cv2.cvtColor(text.astype(np.uint8), cv2.COLOR_BGR2GRAY)
 		textRecognized = pytesseract.image_to_string(text)
