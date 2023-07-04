@@ -115,8 +115,8 @@ def text_detector(image):
         		startX=W-2
 		elif startX < 2:
                 	startX=2
-		if startY > W:
-            		startY=W-2
+		if startY > H:
+            		startY=H-2
         	elif startY < 2:
             		startY=2
         
@@ -124,8 +124,8 @@ def text_detector(image):
             		endX=W-2
         	elif endX < 2:
             		endX=2
-        	if endY > W:
-            		endY=W-2
+        	if endY > H:
+            		endY=H-2
         	elif endY < 2:
             		endY=2
 
