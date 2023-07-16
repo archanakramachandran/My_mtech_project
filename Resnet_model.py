@@ -1,81 +1,78 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 22 01:09:02 2023
+Created on Tue Jun 27 22:48:51 2023
 
 @author: hp
 """
-
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 15 22:08:01 2023
+Created on Sat Jun 24 22:42:06 2023
 
 @author: hp
 """
-
-#%% Import the required packages
 import tensorflow as tf
-from tensorflow import keras 
-from keras import layers
 import matplotlib.pyplot as plt
-from matplotlib import style
-from keras.preprocessing.image import ImageDataGenerator
-import random
 import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
 import os
-from tensorflow.python.keras.layers import Dense,Flatten,Dropout,Conv2D,MaxPooling2D
+from tensorflow.python.keras.layers import Dense, Flatten
 from keras.models import Sequential
-from keras.optimizers import Adam
-import cv2
-import pathlib
-import PIL
-from keras.models import load_model
-from keras.models import Model
+from keras.optimizers import Adamax
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.layers.convolutional import Conv2D, MaxPooling2D
 
-#%%Prepare the dataset
-data_dirt = r'I:\End_sem_major_project\output\train'
-data_dirt = pathlib.Path(data_dirt)
 
-data_dirv = r'I:\End_sem_major_project\output\val' 
-data_dirv = pathlib.Path(data_dirv)
+# Update your data paths here
+train_path=r'I:\End_sem_major_project\data\train'
+val_path= r'I:\End_sem_major_project\data\val' 
+test_path= r'I:\End_sem_major_project\data\test' 
 
-#roses= list(data_dir.glob("BEANS/*"))
 imgh,imgw = 256,256
-batch_size=32
+batch_size=64
 
-#%%Split the dataset
-train_datagen =ImageDataGenerator(
-        rescale=1./255,
-        rotation_range=20,
-        zoom_range=0.2,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        horizontal_flip=True)
+alphabet = ['BEANS', 'CAKE', 'CANDY', 'CEREAL', 'CHIPS', 'CHOCOLATE', 'COFFEE',
+                 'CORN', 'FISH', 'FLOUR', 'HONEY', 'JAM', 'JUICE', 'MILK', 'NUTS', 'OIL',
+                 'PASTA', 'RICE', 'SODA', 'SPICES', 'SUGAR', 'TEA', 'TOMATO_SAUCE', 'VINEGAR', 'WATER']
+#Path where you want to save the model
+os.chdir(r'I:\End_sem_major_project\New_testing_results\Resnet2_changes')
 
-val_datagen = ImageDataGenerator(rescale=1./255)
+train_datagen = ImageDataGenerator(
+    #featurewise_center=True,
+    #featurewise_std_normalization=True,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    vertical_flip=True,
+    zoom_range=0.2)
+    #rescale=1./255
+val_datagen = ImageDataGenerator()
 
-train_generator=train_datagen.flow_from_directory(data_dirt, 
-                                                             seed=123,
-                                                             class_mode= 'categorical', 
-                                                             target_size= (imgh,imgw),
-                                                             batch_size=batch_size)
+train_generator = train_datagen.flow_from_directory(r'I:\End_sem_major_project\data\train',
+        target_size=(256, 256),
+        batch_size=64,
+        color_mode='rgb',
+        seed=123,
+        class_mode='categorical')
 
-val_generator=val_datagen.flow_from_directory(data_dirv,
-                                                           seed=123,
-                                                           class_mode= "categorical", 
-                                                           target_size= (imgh,imgw),
-                                                           batch_size=batch_size)
+val_generator = val_datagen.flow_from_directory(r'I:\End_sem_major_project\data\val' ,
+                                              target_size=(256, 256),
+                                              batch_size=64,
+                                              color_mode='rgb',
+                                              seed=123,
+                                              class_mode='categorical' )
 
-#%%
-classes_names=train_generator.classes
-print(classes_names)
 
-#%%Choose the pretrained model
+num_classes = len(alphabet)
+print(num_classes)
+
 model=Sequential()
 
 pretrainedmodel=tf.keras.applications.ResNet50(include_top=False,
                                                input_shape=(imgh,imgw,3),
                                                pooling="max",
-                                               classes=25,
                                                weights="imagenet")
 for layer in pretrainedmodel.layers:
     layer.trainable=False
@@ -84,24 +81,25 @@ model.add(pretrainedmodel)
 model.add(Flatten())
 model.add(Dense(256, activation="relu"))
 model.add(Dense(25, activation="softmax"))
-model.compile(optimizer=Adam(learning_rate=0.0001),loss="categorical_crossentropy",metrics=["accuracy"])
-epochs = 100
+model.summary()
+model.compile(optimizer=Adamax(learning_rate=0.001), 
+              loss="categorical_crossentropy", 
+              metrics=["accuracy"])
+epochs = 100 
+#Update this path to save the best model
+best_model_path = r'I:\End_sem_major_project\New_testing_results\Resnet2_changes'
+early_stopping = EarlyStopping(monitor = 'val_loss', patience = 10, verbose = 1)
+model_checkpoint = ModelCheckpoint(best_model_path, verbose = 1, save_best_only = True)
+
 history=model.fit(train_generator,
-                            validation_data=val_generator,
-                            steps_per_epoch=97,
-                            epochs=epochs,
-                            batch_size=batch_size)
-
-
-#%%model summary
-print(model.summary())
-
-
-#%%graph plotting 
+                  validation_data=(val_generator),
+                  epochs=epochs,
+                  workers=8,
+                  callbacks = [early_stopping, model_checkpoint]
+                 )
 
 fig1=plt.figure()
 plt.subplot(1,1,1)
-plt.title("Graphical Representation for\n Accuracies vs Epochs\n ")
 plt.plot(history.history["accuracy"],label='Training Accuracy')
 plt.plot(history.history["val_accuracy"],label='Validation Acuuracy')
 plt.xlabel("EPOCH").set_color('r')                                          
@@ -111,7 +109,6 @@ plt.legend()
 
 fig2=plt.figure()
 plt.subplot(1,1,1)
-plt.title("Graphical Representation for\n Losses vs Epochs\n ")
 plt.plot(history.history["loss"],label='Training Loss')
 plt.plot(history.history["val_loss"],label='Validation Loss')
 plt.xlabel("EPOCH").set_color('r')         
@@ -120,6 +117,7 @@ plt.grid(True)
 plt.legend()
 
 
-#%%#%%
-model.save('model3.h5py')   
+
+
+
 
